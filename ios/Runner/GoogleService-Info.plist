@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>965728996979-2ka9dmrd3upiq547ptu32dfh0p46or84.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.965728996979-2ka9dmrd3upiq547ptu32dfh0p46or84</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCzkz1Z1q6mviDi_J3JqeoMMnXi6jsYr28</string>
+	<key>GCM_SENDER_ID</key>
+	<string>965728996979</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.flutterAppLaBan</string>
+	<key>PROJECT_ID</key>
+	<string>labanapp</string>
+	<key>STORAGE_BUCKET</key>
+	<string>labanapp.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:965728996979:ios:d63e97aa9b78ef231ae406</string>
+	<key>DATABASE_URL</key>
+	<string>https://labanapp.firebaseio.com</string>
+</dict>
+</plist>

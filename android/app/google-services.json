@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "965728996979",
+    "firebase_url": "https://labanapp.firebaseio.com",
+    "project_id": "labanapp",
+    "storage_bucket": "labanapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965728996979:android:c3e2072bbb8af66c1ae406",
+        "android_client_info": {
+          "package_name": "com.example.flutter_app_la_ban"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "965728996979-m9g6ojkokh52chjur2gciv3d0bv0tnat.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkTT8m-qVvismLRrwp7Es6Q0GhYx1Du28"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965728996979-m9g6ojkokh52chjur2gciv3d0bv0tnat.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "965728996979-2ka9dmrd3upiq547ptu32dfh0p46or84.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterAppLaBan"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
