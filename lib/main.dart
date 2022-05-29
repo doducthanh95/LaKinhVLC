@@ -34,14 +34,20 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<RemoteConfig> setupRemoteConfig() async {
-  final RemoteConfig remoteConfig = await RemoteConfig.instance;
+Future<FirebaseRemoteConfig> setupRemoteConfig() async {
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(minutes: 1),
+    minimumFetchInterval: const Duration(hours: 1),
+  ));
 
-  await remoteConfig.fetch();
-  await remoteConfig.activateFetched();
+  await remoteConfig.fetchAndActivate();
+  await remoteConfig.ensureInitialized();
 
 //testing
   kGoogleApiAndroidKey = remoteConfig.getString("google_map_api");
+
+  debugPrint('ddthanh $kGoogleApiAndroidKey');
 
   return remoteConfig;
 }

@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:LaKinhVLC/bloc/compass_bloc.dart';
 import 'package:LaKinhVLC/bloc/map_bloc.dart';
-import 'package:flutter/widgets.dart';
+import 'package:LaKinhVLC/const/const_value.dart';
 import 'package:flutter_compass/flutter_compass.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:flutter/material.dart';
 
 class CompassPage extends StatefulWidget {
@@ -34,13 +32,14 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
     super.initState();
 
     _compassSub = FlutterCompass.events.listen((value) {
-      double coordinate = value;
-      alphaRotate = coordinate;
-      setState(() {
-        alpha = double.parse((coordinate).toStringAsFixed(2)).toString();
-      });
-      //bloc.setValueDirection(coordinate);
-      widget.bloc.setAngle(coordinate);
+      if (isUseCompass) {
+        double coordinate = value.heading;
+        alphaRotate = coordinate;
+        setState(() {
+          alpha = double.parse((coordinate).toStringAsFixed(2)).toString();
+        });
+        widget.bloc.setAngle(coordinate);
+      }
     });
 
     _compassSubMap = widget.bloc.streamMap.listen((event) {

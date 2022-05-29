@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:LaKinhVLC/bloc/map_bloc.dart';
@@ -7,16 +8,16 @@ import 'package:LaKinhVLC/main.dart';
 import 'package:LaKinhVLC/service/dynamic_link_service.dart';
 import 'package:LaKinhVLC/ui/compass_page.dart';
 import 'package:LaKinhVLC/ui/map_page.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:gallery_saver/gallery_saver.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:ui' as ui;
 
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -55,13 +56,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
   }
 
-  // void _getRemoteConfig() async {
-  //   await remoteConfigConst.fetch(expiration: Duration(seconds: 5));
-  //   remoteConfigConst.getAll();
-  //   kGoogleApiAndroidKey = remoteConfigConst.getString(rcKey);
-  //   debugPrint('ddthanh: $kGoogleApiAndroidKey');
-  // }
-
   void _capturePng() async {
     RenderRepaintBoundary renderRepaintBoundary =
         _containerKey.currentContext.findRenderObject();
@@ -73,11 +67,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _isShowChildScreen = true;
     setState(() {
       Future.delayed(Duration(seconds: 1)).then((value) async {
-        var _newFile = await _screenshotController.capture(pixelRatio: 20);
-        await GallerySaver.saveImage(_newFile.path).then((value) {
-          setState(() {
-            _isShowChildScreen = false;
-          });
+        await _screenshotController
+            .capture(delay: const Duration(milliseconds: 10))
+            .then((Uint8List image) async {
+          if (image != null) {
+            final directory = await getApplicationDocumentsDirectory();
+            final imagePath =
+                await File('${directory.path}/image.png').create();
+
+            File('$directory/file_name${DateTime.now()}.png')
+                .writeAsBytes(image);
+            await ImageGallerySaver.saveFile('${directory.path}/image.png');
+            setState(() {
+              _isShowChildScreen = false;
+            });
+          }
         });
       });
     });
@@ -105,6 +109,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return Scaffold(
       appBar: AppBar(
         title: Text("La bàn số"),
+        leading: Switch(
+          value: isUseCompass,
+          activeColor: Colors.greenAccent,
+          onChanged: (isOn) {
+            setState(() {
+              isUseCompass = isOn;
+            });
+          },
+        ),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -193,10 +206,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> _shareLocation() async {
     String url = await _dynamicLink.createDynamicLink(_bloc.getPosition(), 20);
-    await Share.share(url,
-        subject: "Chia sẻ vị trí",
-        sharePositionOrigin: Rect.fromLTRB(0, 0, 0, 0));
-    //await FlutterShare.share(title: "Share", linkUrl: url);
+    await Share.share(url, subject: 'Chia sẻ vị trí');
   }
 
   _captureScreen() async {

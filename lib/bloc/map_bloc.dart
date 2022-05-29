@@ -45,8 +45,7 @@ class MapBloc {
   Future<Position> getLocation() async {
     Position currentLocation;
     try {
-      currentLocation =
-          await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      currentLocation = await Geolocator.getCurrentPosition();
       if (!isShowCurrentPositon && positionDeepLink != null) {
         return positionDeepLink;
       } else {

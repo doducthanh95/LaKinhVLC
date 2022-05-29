@@ -48,17 +48,17 @@
 	<key>NSContactsUsageDescription</key>
 	<string>App use contacts </string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>App use location to display your current on map</string>
+	<string>App use location to enable compass display your current on map</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>App use location to display your current on map</string>
+	<string>App use location to enable compass display your current on map</string>
 	<key>NSLocationUsageDescription</key>
-	<string>App use location to display your current on map</string>
+	<string>App use location to enable compass display your current on map</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>App use location to display your current on map</string>
+	<string>App use location to enable compass display your current on map</string>
 	<key>NSMotionUsageDescription</key>
 	<string>App use motion for feature compass</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>App use to save photo</string>
+	<string>App use to save photo </string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>App use to save photo</string>
 	<key>NSSpeechRecognitionUsageDescription</key>

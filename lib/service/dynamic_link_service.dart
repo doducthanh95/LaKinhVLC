@@ -8,17 +8,18 @@ class DynamicLinkService {
 
   DynamicLinkService(this.mapBloc);
 
+  FirebaseDynamicLinks dynamicLinks = FirebaseDynamicLinks.instance;
+
   Future<Uri> handleDynamicLinks() async {
     await Future.delayed(Duration(seconds: 3));
 
-    FirebaseDynamicLinks.instance.onLink(
-        onSuccess: (PendingDynamicLinkData dynamicLink) async {
+    dynamicLinks.onLink.listen((PendingDynamicLinkData dynamicLink) async {
       final Uri deepLink = dynamicLink?.link;
 
       if (deepLink != null) {
         return _handleDeepLink(dynamicLink);
       }
-    }, onError: (OnLinkErrorException e) async {
+    }, onError: (e) async {
       print('onLinkError');
       print(e.message);
       return null;
@@ -60,12 +61,12 @@ class DynamicLinkService {
         androidParameters: AndroidParameters(
           packageName: 'com.example.flutter_app_la_ban',
         ),
-        iosParameters: IosParameters(
+        iosParameters: const IOSParameters(
             bundleId: 'com.example.flutterAppLaBan',
             minimumVersion: '1.0',
             //appStoreId: "1481524675"));
             appStoreId: '1534484049'));
-    ShortDynamicLink dynamicUrl = await parameters.buildShortLink();
-    return dynamicUrl.shortUrl.toString();
+    Uri dynamicUrl = await dynamicLinks.buildLink(parameters);
+    return dynamicUrl.toString();
   }
 }

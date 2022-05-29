@@ -1,26 +1,16 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:LaKinhVLC/bloc/compass_bloc.dart';
 import 'package:LaKinhVLC/bloc/map_bloc.dart';
 import 'package:LaKinhVLC/const/const_value.dart';
 import 'package:app_settings/app_settings.dart';
-import 'package:connectivity/connectivity.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:google_maps_webservice/directions.dart';
-import 'package:google_maps_webservice/distance.dart';
-import 'package:google_maps_webservice/geocoding.dart';
-import 'package:google_maps_webservice/geolocation.dart';
-import 'package:google_maps_webservice/staticmap.dart';
-import 'package:google_maps_webservice/timezone.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_api_headers/google_api_headers.dart';
 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiAndroidKey);
 
@@ -47,6 +37,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   StreamSubscription subscription;
   StreamSubscription subscriptionCompass;
 
+  var markers = Set<Marker>();
+  MarkerId selectedMarker;
+  int _markerIdCounter = 1;
+
   @override
   void initState() {
     _kGooglePlex = CameraPosition(
@@ -55,7 +49,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       bearing: angle,
       zoom: widget.bloc.zoom,
     );
-    // TODO: implement initState
+
     WidgetsBinding.instance.addObserver(this);
     _getCurrentPosition();
     _fetchPermissionStatus();
@@ -70,19 +64,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
     super.initState();
 
-    // subscription = Connectivity()
-    //     .onConnectivityChanged
-    //     .listen((ConnectivityResult result) {
-    //   // Got a new connectivity status!
-    //   if (!(result == ConnectivityResult.none)) {
-    //     homeScaffoldKey.currentState.showSnackBar(SnackBar(
-    //       content: Text("Không có kết nối internet"),
-    //       backgroundColor: Colors.orange,
-    //       duration: Duration(seconds: 2),
-    //     ));
-    //   }
-    // });
-
     subscriptionCompass = widget.bloc.streamDeepLink.listen((event) {
       _updatePosition(
           Position(latitude: event.latitude, longitude: event.longitude), 20);
@@ -91,9 +72,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    //subscription.cancel();
     subscriptionCompass.cancel();
   }
 
@@ -114,6 +93,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
             _controller.complete(controller);
           },
           onCameraMove: (p) {
+            if (isUseCompass) {
+              return;
+            }
             widget.bloc.setAngleForCompass(p.bearing);
             widget.bloc.updateCurrentPosition(Position(
                 latitude: p.target.latitude, longitude: p.target.longitude));
@@ -121,6 +103,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
             _position = Position(
                 latitude: p.target.latitude, longitude: p.target.longitude);
           },
+          markers: markers,
         ),
         Positioned(
           left: 20,
@@ -140,8 +123,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       var position = CameraPosition(
           target: LatLng(data.latitude, data.longitude),
           bearing: agle ?? 0,
+          tilt: 10,
           zoom: widget.bloc.zoom);
-      value.moveCamera(CameraUpdate.newCameraPosition(position));
+      value.animateCamera(CameraUpdate.newLatLngZoom(
+          LatLng(data.latitude, data.longitude), widget.bloc.zoom));
     });
   }
 
@@ -158,13 +143,13 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                 content: Text(
                     "Bạn cần cấp quyền vị trí cho ứng dụng để hiển thị chính xác bản đồ"),
                 actions: [
-                  FlatButton(
+                  ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
                     child: Text("Huỷ"),
                   ),
-                  FlatButton(
+                  ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop();
                       AppSettings.openLocationSettings().then((value) {
@@ -209,21 +194,65 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       _position = Position(longitude: lng, latitude: lat);
 
       _updatePosition(Position(longitude: lng, latitude: lat), 0);
+    }
+  }
 
-      // scaffold.showSnackBar(
-      //   SnackBar(content: Text("${p.description} - $lat/$lng")),
-      // );
+  Future<Null> displayPredictionV2(Prediction p, ScaffoldState scaffold) async {
+    if (p != null) {
+      // get detail (lat/lng)
+      GoogleMapsPlaces _places = GoogleMapsPlaces(
+        apiKey: kGoogleApiAndroidKey,
+        apiHeaders: await GoogleApiHeaders().getHeaders(),
+      );
+      PlacesDetailsResponse detail =
+          await _places.getDetailsByPlaceId(p.placeId);
+      final lat = detail.result.geometry.location.lat;
+      final lng = detail.result.geometry.location.lng;
+      _position = Position(longitude: lng, latitude: lat);
+
+      _updatePosition(Position(longitude: lng, latitude: lat), 0);
+
+      _add(_position);
     }
   }
 
   _searchLocation() async {
     Prediction p = await PlacesAutocomplete.show(
-      context: widget.parentContext,
-      apiKey: kGoogleApiAndroidKey,
-      mode: Mode.overlay, // Mode.fullscreen
-      language: "vi",
-      components: [new Component(Component.country, "vn")],
+        context: context,
+        apiKey: kGoogleApiAndroidKey,
+        mode: Mode.overlay, // Mode.fullscreen
+        language: "vi",
+        components: [new Component(Component.country, "vn")]);
+    displayPredictionV2(p, homeScaffoldKey.currentState);
+  }
+
+  void _add(Position position) async {
+    markers.clear();
+    final center = _position;
+    final int markerCount = markers.length;
+
+    if (markerCount == 12) {
+      return;
+    }
+
+    final String markerIdVal = 'marker_id_$_markerIdCounter';
+    _markerIdCounter++;
+    final MarkerId markerId = MarkerId(markerIdVal);
+
+    BitmapDescriptor markerbitmap = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(),
+      "assets/images/icMarker.png",
     );
-    displayPrediction(p, homeScaffoldKey.currentState);
+
+    final Marker marker = Marker(
+        // icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        markerId: markerId,
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: InfoWindow(title: '', snippet: ''),
+        icon: markerbitmap);
+
+    setState(() {
+      markers.add(marker);
+    });
   }
 }
