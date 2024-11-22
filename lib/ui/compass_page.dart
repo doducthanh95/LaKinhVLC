@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:math';
 import 'package:LaKinhVLC/bloc/map_bloc.dart';
 import 'package:LaKinhVLC/const/const_value.dart';
+import 'package:LaKinhVLC/utitlities/utility.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:flutter/material.dart';
 
 class CompassPage extends StatefulWidget {
-  double direction;
-  Function(double) callBack;
-  MapBloc bloc;
-  CompassPage({this.direction, this.callBack, this.bloc});
+  final double direction;
+  final Function(double) callBack;
+  final MapBloc bloc;
+  const CompassPage(
+      {required this.direction, required this.callBack, required this.bloc});
 
   @override
   _CompassPageState createState() => _CompassPageState();
@@ -18,22 +20,21 @@ class CompassPage extends StatefulWidget {
 class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
   //final bloc = CompassBloc();
 
-  StreamSubscription _compassSub;
-  StreamSubscription _compassSubMap;
+  StreamSubscription? _compassSub;
+  StreamSubscription? _compassSubMap;
 
   String alpha = "0";
   double alphaRotate = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     WidgetsBinding.instance.addObserver(this);
 
     super.initState();
 
-    _compassSub = FlutterCompass.events.listen((value) {
+    _compassSub = FlutterCompass.events?.listen((value) {
       if (isUseCompass) {
-        double coordinate = value.heading;
+        double coordinate = value.heading ?? 0.0;
         alphaRotate = coordinate;
         setState(() {
           alpha = double.parse((coordinate).toStringAsFixed(2)).toString();
@@ -53,10 +54,9 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    _compassSub.cancel();
-    _compassSubMap.cancel();
+    _compassSub?.cancel();
+    _compassSubMap?.cancel();
   }
 
   @override
@@ -78,15 +78,17 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
                 child: StreamBuilder<double>(
                     stream: widget.bloc.stream,
                     builder: (context, snapshot) {
-                      double value = widget.direction ?? 0;
+                      double value = widget.direction;
                       if (snapshot.hasData) {
-                        value = snapshot.data;
+                        value = snapshot.data ?? 0.0;
                         return Transform.rotate(
                           angle: value * (pi / 180) * -1,
                           child: Opacity(
-                              opacity: 0.5,
+                              opacity: 0.7,
                               child: Image.asset(
-                                "assets/images/compass.png",
+                                language == 'vi'
+                                    ? "assets/images/compass_1.png"
+                                    : "assets/images/compass.png",
                                 width: MediaQuery.of(context).size.width * 0.9,
                                 height: MediaQuery.of(context).size.width * 0.9,
                               )),
@@ -126,7 +128,7 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
                         text: " " + _getDirectionString(alphaRotate),
                         style: TextStyle(
                             color: Colors.yellow,
-                            fontWeight: FontWeight.normal,
+                            fontWeight: FontWeight.bold,
                             fontSize: 18))
                   ]),
                 )),
@@ -138,23 +140,23 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
 
   String _getDirectionString(double alpha) {
     if (alpha <= 22.5) {
-      return 'Bắc';
+      return 'Bắc'.tr();
     } else if (alpha > 22.5 && alpha <= 67.5) {
-      return 'Đông Bắc';
+      return 'Đông Bắc'.tr();
     } else if (alpha > 67.5 && alpha <= 112.5) {
-      return 'Đông';
+      return 'Đông'.tr();
     } else if (alpha > 112.5 && alpha <= 157.5) {
-      return 'Đông Nam';
+      return 'Đông Nam'.tr();
     } else if (alpha > 157.5 && alpha <= 202.5) {
-      return 'Nam';
+      return 'Nam'.tr();
     } else if (alpha > 202.5 && alpha <= 247.5) {
-      return 'Tây Nam';
+      return 'Tây Nam'.tr();
     } else if (alpha > 247.5 && alpha <= 292.5) {
-      return 'Tây';
+      return 'Tây'.tr();
     } else if (alpha > 292.5 && alpha <= 337.5) {
-      return 'Tây Bắc';
+      return 'Tây Bắc'.tr();
     } else {
-      return 'Bắc';
+      return 'Bắc'.tr();
     }
   }
 }

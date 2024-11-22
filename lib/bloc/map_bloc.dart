@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:LaKinhVLC/position.dart';
 
 class MapBloc {
   BehaviorSubject<double> _object = BehaviorSubject<double>();
@@ -16,13 +17,13 @@ class MapBloc {
   Stream<Uint8List> get streamMapSnapshoot => _objectMapSnapshoot.stream;
   Stream<bool> get streamTakeImage => _objectTakeImage.stream;
 
-  var _currentPosition = Position(longitude: 0, latitude: 0);
+  var _currentPosition = MyPosition(longitude: 0, latitude: 0);
   double zoom = 20;
 
   bool isShowCurrentPositon = true;
-  Position positionDeepLink;
+  MyPosition? positionDeepLink;
 
-  updateCurrentPosition(Position newPosition) {
+  updateCurrentPosition(MyPosition newPosition) {
     _currentPosition = newPosition;
   }
 
@@ -42,14 +43,18 @@ class MapBloc {
     _objectMap.add(value);
   }
 
-  Future<Position> getLocation() async {
+  Future<MyPosition?> getLocation() async {
     Position currentLocation;
     try {
       currentLocation = await Geolocator.getCurrentPosition();
       if (!isShowCurrentPositon && positionDeepLink != null) {
-        return positionDeepLink;
+        return MyPosition(
+            latitude: positionDeepLink?.latitude ?? 0,
+            longitude: positionDeepLink?.longitude ?? 0);
       } else {
-        return currentLocation;
+        return MyPosition(
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude);
       }
     } on Exception {
       return null;

@@ -9,4 +9,6 @@ const String rcKey = 'google_api_key';
 
 var isUseCompass = false;
 
-FirebaseRemoteConfig remoteConfigConst;
+var language = 'vi';
+
+FirebaseRemoteConfig? remoteConfigConst;

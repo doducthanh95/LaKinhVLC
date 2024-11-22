@@ -9,7 +9,8 @@ import Firebase
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyAAhV3gzsXMRUU-J7Je_P1vk4ld4rCJ_j2s")
+    GMSServices.provideAPIKey("AIzaSyCtygrlmYxn5k-iXJjwkYTWVBqXZg2BuwQ")
+    
     GeneratedPluginRegistrant.register(with: self)
     
     if FirebaseApp.app() == nil {
@@ -19,20 +20,5 @@ import Firebase
     
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-    
-//    override func application(_ application: UIApplication, continue userActivity: NSUserActivity,
-//                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-//      let handled = DynamicLinks.dynamicLinks().handleUniversalLink(userActivity.webpageURL!) { (dynamiclink, error) in
-//        // ...
-//      }
-//
-//        return false}
-//    
-//    @available(iOS 9.0, *)
-//    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
-//      return application(app, open: url,
-//                         sourceApplication: options[UIApplication.OpenURLOptionsKey.sourceApplication] as? String,
-//                         annotation: "")
-//    }
     
 }

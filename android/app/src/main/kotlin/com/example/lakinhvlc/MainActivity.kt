@@ -1,10 +1,6 @@
-package com.example.flutter_app_la_ban
-
-// MainActivity.kt
+package com.example.lakinhvlc
 
 import io.flutter.embedding.android.FlutterActivity
 
-
 class MainActivity: FlutterActivity() {
-
 }

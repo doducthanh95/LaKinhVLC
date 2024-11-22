@@ -2,10 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>LaKinhVLC</string>
+	<string>Lakinhvlc</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,31 +15,26 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>flutter_app_la_ban</string>
+	<string>lakinhvlc</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
+	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>Bundle ID</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.example.flutterAppLaBan</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FirebaseDynamicLinksCustomDomains</key>
 	<array>
 		<string>https://flutterapplaban.page.link</string>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>sms</string>
+		<string>tel</string>
+		<string>googlechromes</string>
+		<string>comegooglemaps</string>
+
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -47,6 +44,8 @@
 	<string>App use calendar</string>
 	<key>NSContactsUsageDescription</key>
 	<string>App use contacts </string>
+	<key>NSFileProviderDomainUsageDescription</key>
+	<string></string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>App use location to enable compass display your current on map</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -63,6 +62,8 @@
 	<string>App use to save photo</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>App use speech</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -82,5 +83,11 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+
+	<key>CFBundleLocalizations</key>
+	<array>
+	<string>vi</string>
+	<string>ch</string>
+</array>
 </dict>
 </plist>
