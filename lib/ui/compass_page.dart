@@ -84,7 +84,7 @@ class _CompassPageState extends State<CompassPage> with WidgetsBindingObserver {
                         return Transform.rotate(
                           angle: value * (pi / 180) * -1,
                           child: Opacity(
-                              opacity: 0.7,
+                              opacity: language == 'vi' ? 0.7 : 1,
                               child: Image.asset(
                                 language == 'vi'
                                     ? "assets/images/compass_1.png"
