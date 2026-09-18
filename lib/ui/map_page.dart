@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:LaKinhVLC/bloc/map_bloc.dart';
 import 'package:LaKinhVLC/const/const_value.dart';
@@ -9,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_api_headers/google_api_headers.dart';
@@ -44,9 +42,13 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   int _markerIdCounter = 1;
 
   late GoogleMapController _googleMapController;
+  MapType _currentMapType = MapType.terrain;
 
   @override
   void initState() {
+    super.initState();
+    _loadSavedMapType();
+
     _kGooglePlex = CameraPosition(
       target: LatLng(_position.latitude, _position.longitude),
       tilt: 10,
@@ -67,12 +69,47 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
       widget.bloc.createGoogleMapImage(data);
     });
 
-    super.initState();
-
     subscriptionCompass = widget.bloc.streamDeepLink.listen((event) {
       _updatePosition(
           MyPosition(latitude: event.latitude, longitude: event.longitude), 20);
     });
+  }
+
+  void _loadSavedMapType() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedType = prefs.getString("selected_map_type");
+    if (savedType != null && mounted) {
+      setState(() {
+        switch (savedType) {
+          case 'normal':
+            _currentMapType = MapType.normal;
+            break;
+          case 'terrain':
+            _currentMapType = MapType.terrain;
+            break;
+          case 'satellite':
+            _currentMapType = MapType.satellite;
+            break;
+          case 'hybrid':
+          default:
+            _currentMapType = MapType.hybrid;
+            break;
+        }
+      });
+    }
+  }
+
+  void _setMapType(MapType type) async {
+    setState(() {
+      _currentMapType = type;
+    });
+    final prefs = await SharedPreferences.getInstance();
+    String typeStr = 'terrain';
+    if (type == MapType.normal) typeStr = 'normal';
+    if (type == MapType.terrain) typeStr = 'terrain';
+    if (type == MapType.satellite) typeStr = 'satellite';
+    if (type == MapType.hybrid) typeStr = 'hybrid';
+    await prefs.setString("selected_map_type", typeStr);
   }
 
   @override
@@ -91,7 +128,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
           mapToolbarEnabled: true,
           rotateGesturesEnabled: true,
           compassEnabled: true,
-          mapType: MapType.hybrid,
+          mapType: _currentMapType,
           indoorViewEnabled: true,
           initialCameraPosition: _kGooglePlex ??
               CameraPosition(
@@ -120,13 +157,127 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
         Positioned(
           left: 20,
           bottom: 10,
-          child: FloatingActionButton(
-              child: Icon(Icons.search),
-              onPressed: () {
-                _searchLocation();
-              }),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton(
+                heroTag: 'btnSearch',
+                child: const Icon(Icons.search),
+                onPressed: () {
+                  _searchLocation();
+                },
+              ),
+              const SizedBox(width: 12),
+              FloatingActionButton(
+                heroTag: 'btnMapType',
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.blueAccent,
+                child: const Icon(Icons.layers),
+                onPressed: _showMapTypeSelector,
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  void _showMapTypeSelector() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Chọn loại bản đồ",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildMapTypeOption(
+                      icon: Icons.map_outlined,
+                      label: "Mặc định",
+                      type: MapType.normal,
+                    ),
+                    _buildMapTypeOption(
+                      icon: Icons.terrain,
+                      label: "Địa hình",
+                      type: MapType.terrain,
+                    ),
+                    _buildMapTypeOption(
+                      icon: Icons.satellite_alt,
+                      label: "Vệ tinh",
+                      type: MapType.satellite,
+                    ),
+                    _buildMapTypeOption(
+                      icon: Icons.layers,
+                      label: "Hỗn hợp",
+                      type: MapType.hybrid,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMapTypeOption({
+    required IconData icon,
+    required String label,
+    required MapType type,
+  }) {
+    final isSelected = _currentMapType == type;
+    return InkWell(
+      onTap: () {
+        _setMapType(type);
+        Navigator.of(context).pop();
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withAlpha(30) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: isSelected ? Colors.blue : Colors.grey.shade700,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.blue : Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

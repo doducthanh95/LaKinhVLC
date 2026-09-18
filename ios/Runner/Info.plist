@@ -86,8 +86,15 @@
 
 	<key>CFBundleLocalizations</key>
 	<array>
-	<string>vi</string>
-	<string>ch</string>
-</array>
+		<string>vi</string>
+		<string>ch</string>
+	</array>
+
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartVmService._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Flutter tools use the local network to communicate with and debug your app.</string>
 </dict>
 </plist>
